@@ -14,6 +14,15 @@ const createPage = (title, callback) => {
   });
 };
 
+const pageSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  blocks: [blockSchema],
+});
+
+
 // Export the createPage function
 module.exports = {
   createPage,

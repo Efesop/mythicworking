@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.post('/api/pages', (req, res) => {
+app.post('/databse/pages', (req, res) => {
   pageController.createNewPage(req.body.title, (err, page) => {
     if (err) {
       res.status(500).send(err);
@@ -19,7 +19,7 @@ app.post('/api/pages', (req, res) => {
   });
 });
 
-app.get('/api/pages', (req, res) => {
+app.get('/database/pages', (req, res) => {
   pageController.getAllPages((err, pages) => {
     if (err) {
       res.status(500).send(err);
@@ -29,7 +29,7 @@ app.get('/api/pages', (req, res) => {
   });
 });
 
-app.put('/api/pages/:id', (req, res) => {
+app.put('/database/pages/:id', (req, res) => {
   pageController.updatePageById(req.params.id, req.body.title, (err, page) => {
     if (err) {
       res.status(500).send(err);
@@ -39,7 +39,7 @@ app.put('/api/pages/:id', (req, res) => {
   });
 });
 
-app.delete('/api/pages/:id', (req, res) => {
+app.delete('/database/pages/:id', (req, res) => {
   pageController.deletePageById(req.params.id, (err, page) => {
     if (err) {
       res.status(500).send(err);

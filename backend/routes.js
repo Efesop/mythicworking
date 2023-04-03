@@ -1,7 +1,7 @@
 // routes.js
 const express = require('express');
 const router = express.Router();
-const editorController = require('..database/editorController');
+const editorController = require('..src/controllers/editorController');
 
 router.post('/save-editor-data', editorController.saveData);
 // In your routes file

@@ -12,7 +12,6 @@ import CodeTool from '@editorjs/code';
 import InlineCode from '@editorjs/inline-code';
 import Underline from '@editorjs/underline';
 import Hyperlink from 'editorjs-hyperlink';
-import axios from 'axios';
 
 const customUndoRedoConfig = {
   shortcuts: {
@@ -36,31 +35,25 @@ const DEFAULT_INITIAL_DATA = () => {
   }
 }
 
-const Editor = ({ editorData, onEditorDataChange }) => {
+const EDITTOR_HOLDER_ID = 'editorjs';
+
+const Editor = (props) => {
   const ejInstance = useRef();
-  const editorRef = useRef(null);
+  const [editorData, setEditorData] = React.useState(DEFAULT_INITIAL_DATA);
 
   useEffect(() => {
     if (!ejInstance.current) {
       initEditor();
     }
     return () => {
-      if (ejInstance.current) {
-        ejInstance.current.destroy();
-        ejInstance.current = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!ejInstance.current && editorRef.current) {
-      initEditor();
+      ejInstance.current.destroy();
+      ejInstance.current = null;
     }
-  }, [editorRef.current]);
+  }, []);
 
   const initEditor = () => {
     const editor = new EditorJS({
-      holder: editorRef.current,
+      holder: EDITTOR_HOLDER_ID,
       logLevel: "ERROR",
       data: editorData,
       onReady: () => {
@@ -68,8 +61,8 @@ const Editor = ({ editorData, onEditorDataChange }) => {
         handleReady(editor);
       },
       onChange: async () => {
-        let content = await editor.saver.save();
-        onEditorDataChange({ content, editor });
+        let content = await ejInstance.current.saver.save();
+        setEditorData(content);
       },
       autofocus: true,
       tools: {
@@ -119,58 +112,16 @@ const Editor = ({ editorData, onEditorDataChange }) => {
     });
   };
 
-  const updateEditorContent = async (newData) => {
-    if (!ejInstance.current) {
-      return;
-    }
-
-    await ejInstance.current.clear();
-    await ejInstance.current.render(newData);
-  };
-    
-
   const handleReady = (editor) => {
     new Undo({ editor, config: customUndoRedoConfig });
     new DragDrop(editor);
   };
 
-  
-
-return (
-  <React.Fragment>
-    <div ref={editorRef}> </div>
-  </React.Fragment>
-);
+  return (
+    <React.Fragment>
+      <div id={EDITTOR_HOLDER_ID}> </div>
+    </React.Fragment>
+  );
 }
 
-const App = () => {
-  const [editorData, setEditorData] = React.useState({ content: DEFAULT_INITIAL_DATA, editor: null });
-
-const saveEditorData = async () => {
-  if (!editorData.editor) {
-    return;
-  }
-  
-  const outputData = await editorData.editor.saver.save();
-  console.log("Article data: ", outputData);
-
-    // Send the data to your backend
-    axios
-    .post("/save-editor-data", outputData)
-    .then((response) => {
-      console.log("Data saved successfully: ", response);
-    })
-    .catch((error) => {
-      console.log("Error saving data: ", error);
-    });
-};
-
-  return (
-    <>
-     <Editor editorData={editorData.content} onEditorDataChange={setEditorData} />
-      <button onClick={saveEditorData}>Save</button>
-    </>
-  );
-};
-
-export default App;
+export default Editor;

@@ -11,8 +11,8 @@ app.use(require('./routes'));
 
 
 // Routes
-app.post('/databse/pages', (req, res) => {
-  pageController.createNewPage(req.body.title, (err, page) => {
+app.post('/pages', (req, res) => {
+  pageController.createPage(req.body.title, (err, page) => {
     if (err) {
       res.status(500).send(err);
     } else {
@@ -21,7 +21,7 @@ app.post('/databse/pages', (req, res) => {
   });
 });
 
-app.get('/database/pages/:id', (req, res) => {
+app.get('/pages/:id', (req, res) => {
     pageController.getPageById(req.params.id, (err, page) => {
       if (err) {
         res.status(500).send(err);
@@ -31,7 +31,7 @@ app.get('/database/pages/:id', (req, res) => {
     });
   });
 
-app.put('/database/pages/:id', (req, res) => {
+  app.put('/pages/:id', (req, res) => {
   pageController.updatePageById(req.params.id, req.body.title, (err, page) => {
     if (err) {
       res.status(500).send(err);
@@ -41,7 +41,7 @@ app.put('/database/pages/:id', (req, res) => {
   });
 });
 
-app.delete('/database/pages/:id', (req, res) => {
+app.delete('/pages/:id', (req, res) => {
   pageController.deletePageById(req.params.id, (err, page) => {
     if (err) {
       res.status(500).send(err);

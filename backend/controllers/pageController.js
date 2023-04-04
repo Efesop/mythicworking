@@ -1,4 +1,5 @@
-const db = require('../database');
+
+const db = require('../../database/database');
 
 const getAllPages = (callback) => {
   db.all('SELECT * FROM pages', (err, rows) => {

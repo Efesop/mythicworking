@@ -27,8 +27,7 @@ function HomePage() {
   const [pagesList, setPagesList] = useState([]);
 
   const fetchPagesList = useCallback(() => {
-    axios
-      .get('/database/pages')
+    axios.get('/pages')
       .then((response) => {
         setPagesList(response.data);
       })
@@ -50,57 +49,55 @@ function HomePage() {
   };
   
   const handlePageClick = (pageId) => {
-    setCurrentPage(pageId);
-    axios
-      .get('/database/pages/' + pageId)
+    axios.get('/pages/' + pageId)
       .then((response) => {
+        setCurrentPage(response.data.id); // Moved this line down so that response is defined
         setEditorData(response.data.content);
       })
       .catch((error) => {
         console.error("Error fetching page:", error);
       });
-  };
+  };  
 
   const handleAddNewPage = () => {
-    // Set the editor data to the default initial data
-    setEditorData(DEFAULT_INITIAL_DATA);
-    // Reset the current page state to 'home'
-    setCurrentPage('home');
-  };
-  
-  
-  const onSave = () => {
-    if (currentPage === 'home') {
-      // Create a new page with the current content
-      axios.post('/database/pages', {
-        title: 'New page',
-        content: editorData,
-      })
+    axios.post('/pages', { title: 'New page', content: editorData })
       .then((response) => {
         console.log('Page created:', response.data);
-        setPagesList([...pagesList, response.data]); // Add the new page to the pagesList state
+        fetchPagesList(); // Refresh the pages list after creating a new page
+        setCurrentPage(response.data.id); // Set the current page to the new page
       })
       .catch((error) => {
         console.error('Error creating page:', error);
       });
+  };  
+
+  const onSave = () => {
+    if (currentPage === 'home') {
+      // Create a new page with the current content
+      axios.post('/pages', { title: 'New page', content: editorData })
+        .then((response) => {
+          console.log('Page created:', response.data);
+          setPagesList([...pagesList, response.data]); // Add the new page to the pagesList state
+        })
+        .catch((error) => {
+          console.error('Error creating page:', error);
+        });
     } else {
       // Update the existing page with the current content
-      axios.put('/database/pages/' + currentPage, {
-        title: 'Updated page',
-        content: editorData,
-      })
-      .then((response) => {
-        console.log('Page updated:', response.data);
-      })
-      .catch((error) => {
-        console.error('Error updating page:', error);
-      });
+      axios.put('/pages/' + currentPage, { title: 'Updated page', content: editorData })
+        .then((response) => {
+          console.log('Page updated:', response.data);
+          fetchPagesList(); // Refresh the pages list after updating
+        })
+        .catch((error) => {
+          console.error('Error updating page:', error);
+        });
     }
   };
+  
 
   const handleDeleteNote = (pageId) => {
-    axios
-      .delete('/database/pages/' + pageId)
+    axios.delete('/pages/' + pageId)
       .then(() => {
       console.log('Page deleted');
       })
@@ -108,10 +105,6 @@ function HomePage() {
       console.error('Error deleting page:', error);
       });
       };
-      
-      useEffect(() => {
-      fetchPagesList();
-      }, [fetchPagesList]);
       
       return (
       <div>
@@ -123,6 +116,7 @@ function HomePage() {
         onDeleteNote={handleDeleteNote}
         notes={pagesList}
         onAddNewPage={handleAddNewPage}
+        currentPage={currentPage}
       />
       <MainContent>
       <EditorJsComponent editorData={editorData} onEditorDataChange={handleEditorDataChange} onSave={onSave} />

@@ -5,9 +5,10 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Button from '@mui/material/Button';
 import axios from 'axios';
 
-const Sidebar = ({ drawerOpen, toggleDrawer, onPageClick, onDeleteNote, notes, onAddNewPage }) => {
+const Sidebar = ({ drawerOpen, toggleDrawer, onPageClick, onDeleteNote, notes, onAddNewPage, currentPage }) => {
   return (
     <Drawer
       anchor="left"
@@ -16,8 +17,8 @@ const Sidebar = ({ drawerOpen, toggleDrawer, onPageClick, onDeleteNote, notes, o
       variant="temporary"
     >
       <List>
-        {notes.map((note) => (
-          <ListItem key={note.id}>
+      {notes.map((note) => (
+        <ListItem key={note.id} selected={note.id === currentPage}>
           <ListItemText
             primary={note.title}
             onClick={() => onPageClick(note.id)}
@@ -26,14 +27,15 @@ const Sidebar = ({ drawerOpen, toggleDrawer, onPageClick, onDeleteNote, notes, o
             <DeleteIcon />
           </IconButton>
         </ListItem>
-        ))}
+      ))}
         <ListItem>
-          <ListItemText primary="Add new page" onClick={onAddNewPage} />
+          <Button onClick={onAddNewPage}>
+            <ListItemText primary="Add new page" />
+          </Button>
         </ListItem>
       </List>
     </Drawer>
   );
 };
-
 
 export default Sidebar;

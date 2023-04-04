@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const pageController = require('./controllers/pageController'); // Assuming controllers folder is in the same level as routes.js
+const pageController = require('./pageController');
+
 
 // Get all pages
-router.get('/database/pages', (req, res) => {
+router.get('/pages', (req, res) => {
   pageController.getAllPages((err, pages) => {
     if (err) {
       res.status(500).send(err);
@@ -14,7 +15,7 @@ router.get('/database/pages', (req, res) => {
 });
 
 // Create a new page
-router.post('/database/pages', (req, res) => {
+router.post('/pages', (req, res) => {
   const { title, content } = req.body;
   pageController.createNewPage(title, content, (err, page) => {
     if (err) {
@@ -26,7 +27,7 @@ router.post('/database/pages', (req, res) => {
 });
 
 // Update a page by ID
-router.put('/database/pages/:id', (req, res) => {
+router.put('/pages/:id', (req, res) => {
   const { title, content } = req.body;
   const id = req.params.id;
   pageController.updatePageById(id, title, content, (err, updatedPage) => {
@@ -39,7 +40,7 @@ router.put('/database/pages/:id', (req, res) => {
 });
 
 // Get a page by ID
-router.get('/database/pages/:id', (req, res) => {
+router.get('/pages/:id', (req, res) => {
   const id = req.params.id;
   pageController.getPageById(id, (err, page) => {
     if (err) {
@@ -51,7 +52,7 @@ router.get('/database/pages/:id', (req, res) => {
 });
 
 // Delete a page by ID
-router.delete('/database/pages/:id', (req, res) => {
+router.delete('/pages/:id', (req, res) => {
   const id = req.params.id;
   pageController.deletePageById(id, (err) => {
     if (err) {

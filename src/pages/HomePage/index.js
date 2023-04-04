@@ -5,6 +5,7 @@ import FloatingActionButton from '../../components/FloatingActionButton';
 import EditorJsComponent from '../../components/EditorJsComponent/EditorJsComponent';
 import Sidebar from '../../components/Sidebar';
 import Button from '@mui/material/Button';
+import axios from 'axios';
 
 const DEFAULT_INITIAL_DATA = {
   time: new Date().getTime(),
@@ -20,84 +21,116 @@ const DEFAULT_INITIAL_DATA = {
 };
 
 function HomePage() {
-
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editorData, setEditorData] = useState(DEFAULT_INITIAL_DATA);
   const [currentPage, setCurrentPage] = useState('home');
-  
-  const [pagesData, setPagesData] = useState({
-    page1: { time: new Date().getTime(),
-      blocks: [
-        {
-          type: 'header',
-          data: {
-            text: 'Page 1 content',
-            level: 1,
-          },
-        },
-      ],},
-    page2: { time: new Date().getTime(),
-      blocks: [
-        {
-          type: 'header',
-          data: {
-            text: 'Page 2 content',
-            level: 1,
-          },
-        },
-      ], },
-  });
+  const [pagesList, setPagesList] = useState([]);
 
-  const saveCurrentPageData = useCallback(() => {
-    setPagesData((prevPagesData) => {
-      return {
-        ...prevPagesData,
-        [currentPage]: editorData,
-      };
-    });
-  }, [currentPage, editorData]);
+  const fetchPagesList = useCallback(() => {
+    axios
+      .get('/database/pages')
+      .then((response) => {
+        setPagesList(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching pages:', error);
+      });
+  }, []);
 
   useEffect(() => {
-    if (pagesData[currentPage]) {
-      setEditorData(pagesData[currentPage]);
-    } else if (currentPage === 'home') {
-      setEditorData(DEFAULT_INITIAL_DATA);
-    }
-  }, [currentPage, pagesData]);
-  
+    fetchPagesList();
+  }, [fetchPagesList]);
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
   };
-
+  
   const handleEditorDataChange = (newData) => {
     setEditorData(newData);
   };
+  
+  const handlePageClick = (pageId) => {
+    setCurrentPage(pageId);
+    axios
+      .get('/database/pages/' + pageId)
+      .then((response) => {
+        setEditorData(response.data.content);
+      })
+      .catch((error) => {
+        console.error("Error fetching page:", error);
+      });
+  };
 
-  const handlePageClick = (pageKey) => {
-    saveCurrentPageData();
-    setCurrentPage(pageKey);
-  }; 
+  const handleAddNewPage = () => {
+    // Set the editor data to the default initial data
+    setEditorData(DEFAULT_INITIAL_DATA);
+    // Reset the current page state to 'home'
+    setCurrentPage('home');
+  };
+  
+  
+  const onSave = () => {
+    if (currentPage === 'home') {
+      // Create a new page with the current content
+      axios.post('/database/pages', {
+        title: 'New page',
+        content: editorData,
+      })
+      .then((response) => {
+        console.log('Page created:', response.data);
+        setPagesList([...pagesList, response.data]); // Add the new page to the pagesList state
+      })
+      .catch((error) => {
+        console.error('Error creating page:', error);
+      });
+    } else {
+      // Update the existing page with the current content
+      axios.put('/database/pages/' + currentPage, {
+        title: 'Updated page',
+        content: editorData,
+      })
+      .then((response) => {
+        console.log('Page updated:', response.data);
+      })
+      .catch((error) => {
+        console.error('Error updating page:', error);
+      });
+    }
+  };
 
-  return (
-    <div>
+  const handleDeleteNote = (pageId) => {
+    axios
+      .delete('/database/pages/' + pageId)
+      .then(() => {
+      console.log('Page deleted');
+      })
+      .catch((error) => {
+      console.error('Error deleting page:', error);
+      });
+      };
+      
+      useEffect(() => {
+      fetchPagesList();
+      }, [fetchPagesList]);
+      
+      return (
+      <div>
       <AppBar toggleDrawer={toggleDrawer} />
       <Sidebar
         drawerOpen={drawerOpen}
         toggleDrawer={toggleDrawer}
         onPageClick={handlePageClick}
+        onDeleteNote={handleDeleteNote}
+        notes={pagesList}
+        onAddNewPage={handleAddNewPage}
       />
       <MainContent>
-        <EditorJsComponent
-          editorData={editorData}
-          onEditorDataChange={handleEditorDataChange}
-        />
+      <EditorJsComponent editorData={editorData} onEditorDataChange={handleEditorDataChange} onSave={onSave} />
       </MainContent>
-      <Button id="save-btn" variant="contained" color="primary" onClick={saveCurrentPageData}>
-        Save
-      </Button>
+      <Button onClick={onSave}>Save</Button>
       <FloatingActionButton />
-    </div>
-  );
-}
-export default HomePage;
+      </div>
+      );
+      }
+      
+      export default HomePage;

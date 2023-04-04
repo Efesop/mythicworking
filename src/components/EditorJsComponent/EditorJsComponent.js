@@ -35,11 +35,11 @@ const DEFAULT_INITIAL_DATA = () => {
   }
 }
 
-const EDITTOR_HOLDER_ID = 'editorjs';
+const EDITOR_HOLDER_ID = 'EditorJS';
 
 const Editor = (props) => {
   const ejInstance = useRef();
-  const [editorData, setEditorData] = React.useState(DEFAULT_INITIAL_DATA);
+  const {editorData, onEditorDataChange, onSave} = props;
 
   useEffect(() => {
     if (!ejInstance.current) {
@@ -53,7 +53,7 @@ const Editor = (props) => {
 
   const initEditor = () => {
     const editor = new EditorJS({
-      holder: EDITTOR_HOLDER_ID,
+      holder: EDITOR_HOLDER_ID,
       logLevel: "ERROR",
       data: editorData,
       onReady: () => {
@@ -62,8 +62,8 @@ const Editor = (props) => {
       },
       onChange: async () => {
         let content = await ejInstance.current.saver.save();
-        setEditorData(content);
-      },
+        onEditorDataChange(content);
+      },      
       autofocus: true,
       tools: {
         header: Header,
@@ -111,15 +111,28 @@ const Editor = (props) => {
       },
     });
   };
-
   const handleReady = (editor) => {
     new Undo({ editor, config: customUndoRedoConfig });
     new DragDrop(editor);
+  
+    editor.isReady
+      .then(() => {
+        editor.container.closest('.codex-editor__redactor').addEventListener('keydown', async (event) => {
+          if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+            event.preventDefault();
+            onSave(editor);
+          }
+        });
+      })
+      .catch((error) => {
+        console.error('Error during Editor.js initialization: ', error);
+      });
   };
+  
 
   return (
     <React.Fragment>
-      <div id={EDITTOR_HOLDER_ID}> </div>
+      <div id={EDITOR_HOLDER_ID}> </div>
     </React.Fragment>
   );
 }

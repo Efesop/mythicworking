@@ -1,60 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 
-const Sidebar = ({ drawerOpen, toggleDrawer, onPageClick }) => {
-  const [notes, setNotes] = useState([]);
-
-  const fetchNotes = async () => {
-    try {
-      const response = await axios.get('/api/pages');
-      setNotes(response.data);
-    } catch (error) {
-      console.error('Error fetching pages:', error);
-    }
-  };
-  
-
-  useEffect(() => {
-    fetchNotes();
-  }, []);
-
-  const handleNoteSelection = async (noteId) => {
-    // Your logic to handle note selection
-  };
-
-  const pages = [
-    { key: 'home', displayName: 'Home' },
-    { key: 'page1', displayName: 'Page 1' },
-    { key: 'page2', displayName: 'Page 2' },
-  ];
-
-  const handlePageClick = (pageKey) => {
-    onPageClick(pageKey);
-    toggleDrawer();
-  };
-
+const Sidebar = ({ drawerOpen, toggleDrawer, onPageClick, onDeleteNote, notes, onAddNewPage }) => {
   return (
-    <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
-      <List>
-        {pages.map(({ key, displayName }) => (
-          <ListItem button key={key} onClick={() => handlePageClick(key)}>
-            <ListItemText primary={displayName} />
-          </ListItem>
-        ))}
-      </List>
+    <Drawer
+      anchor="left"
+      open={drawerOpen}
+      onClose={toggleDrawer}
+      variant="temporary"
+    >
       <List>
         {notes.map((note) => (
-          <ListItem button key={note._id} onClick={() => handleNoteSelection(note._id)}>
-            <ListItemText primary={note.title} />
-          </ListItem>
+          <ListItem key={note.id}>
+          <ListItemText
+            primary={note.title}
+            onClick={() => onPageClick(note.id)}
+          />
+          <IconButton edge="end" aria-label="delete" onClick={() => onDeleteNote(note.id)}>
+            <DeleteIcon />
+          </IconButton>
+        </ListItem>
         ))}
+        <ListItem>
+          <ListItemText primary="Add new page" onClick={onAddNewPage} />
+        </ListItem>
       </List>
     </Drawer>
   );
 };
+
 
 export default Sidebar;

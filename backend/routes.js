@@ -4,7 +4,7 @@ const pageController = require('./controllers/pageController');
 
 
 // Get all pages
-router.get('/pages', (req, res) => {
+router.get('/mythic.db/pages', (req, res) => {
   pageController.getAllPages((err, pages) => {
     if (err) {
       res.status(500).send(err);
@@ -15,7 +15,7 @@ router.get('/pages', (req, res) => {
 });
 
 // Create a new page
-router.post('/pages', (req, res) => {
+router.post('/mythic.db/pages', (req, res) => {
   const { title, content } = req.body;
   pageController.createNewPage(title, content, (err, page) => {
     if (err) {
@@ -27,7 +27,7 @@ router.post('/pages', (req, res) => {
 });
 
 // Update a page by ID
-router.put('/pages/:id', (req, res) => {
+router.put('/mythic.db/pages/:id', (req, res) => {
   const { title, content } = req.body;
   const id = req.params.id;
   pageController.updatePageById(id, title, content, (err, updatedPage) => {
@@ -40,7 +40,7 @@ router.put('/pages/:id', (req, res) => {
 });
 
 // Get a page by ID
-router.get('/pages/:id', (req, res) => {
+router.get('/mythic.db/pages/:id', (req, res) => {
   const id = req.params.id;
   pageController.getPageById(id, (err, page) => {
     if (err) {
@@ -52,7 +52,7 @@ router.get('/pages/:id', (req, res) => {
 });
 
 // Delete a page by ID
-router.delete('/pages/:id', (req, res) => {
+router.delete('/mythic.db/pages/:id', (req, res) => {
   const id = req.params.id;
   pageController.deletePageById(id, (err) => {
     if (err) {

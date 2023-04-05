@@ -61,7 +61,8 @@ const Editor = (props) => {
         handleReady(editor);
       },
       onChange: async () => {
-        let content = await ejInstance.current.saver.save();
+        //let content = await ejInstance.current.saver.save();
+        let content = await ejInstance.saver.save();
         onEditorDataChange(content);
       },      
       autofocus: true,

@@ -27,7 +27,7 @@ function HomePage() {
   const [pagesList, setPagesList] = useState([]);
 
   const fetchPagesList = useCallback(() => {
-    axios.get('http://localhost:3001/pages')
+    axios.get('http://localhost:3001/mythic.db/pages')
       .then((response) => {
         setPagesList(response.data);
       })
@@ -49,10 +49,10 @@ function HomePage() {
   };
   
   const handlePageClick = (pageId) => {
-    axios.get('/pages/' + pageId)
+    axios.get('http://localhost:3001/mythic.db/pages/' + pageId)
       .then((response) => {
         setCurrentPage(response.data.id); // Moved this line down so that response is defined
-        setEditorData(response.data.content);
+        setEditorData(JSON.parse(response.data.content));
       })
       .catch((error) => {
         console.error("Error fetching page:", error);
@@ -60,7 +60,7 @@ function HomePage() {
   };  
 
   const handleAddNewPage = () => {
-    axios.post('/pages', { title: 'New page', content: editorData })
+    axios.post('http://localhost:3001/mythic.db/pages/', { title: 'New page', content: editorData })
       .then((response) => {
         console.log('Page created:', response.data);
         fetchPagesList(); // Refresh the pages list after creating a new page
@@ -72,32 +72,20 @@ function HomePage() {
   };  
 
   const onSave = () => {
-    if (currentPage === 'home') {
-      // Create a new page with the current content
-      axios.post('/pages', { title: 'New page', content: editorData })
-        .then((response) => {
-          console.log('Page created:', response.data);
-          setPagesList([...pagesList, response.data]); // Add the new page to the pagesList state
-        })
-        .catch((error) => {
-          console.error('Error creating page:', error);
-        });
-    } else {
-      // Update the existing page with the current content
-      axios.put('/pages/' + currentPage, { title: 'Updated page', content: editorData })
-        .then((response) => {
-          console.log('Page updated:', response.data);
-          fetchPagesList(); // Refresh the pages list after updating
-        })
-        .catch((error) => {
-          console.error('Error updating page:', error);
-        });
-    }
-  };
+    // Update the existing page with the current content
+    axios.put('http://localhost:3001/mythic.db/pages/' + currentPage, { title: 'Updated page', content: editorData })
+      .then((response) => {
+        console.log('Page updated:', response.data);
+        fetchPagesList(); // Refresh the pages list after updating
+      })
+      .catch((error) => {
+        console.error('Error updating page:', error);
+      });
+  };  
   
 
   const handleDeleteNote = (pageId) => {
-    axios.delete('/pages/' + pageId)
+    axios.delete('http://localhost:3001/mythic.db/pages/' + pageId)
       .then(() => {
       console.log('Page deleted');
       })

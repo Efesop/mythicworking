@@ -4,7 +4,7 @@ const pageController = require('./controllers/pageController');
 
 
 // Get all pages
-router.get('/mythic.db/pages', (req, res) => {
+router.get('/mythic.db/pages/', (req, res) => {
   pageController.getAllPages((err, pages) => {
     if (err) {
       res.status(500).send(err);

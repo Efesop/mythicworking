@@ -27,7 +27,7 @@ function HomePage() {
   const [pagesList, setPagesList] = useState([]);
 
   const fetchPagesList = useCallback(() => {
-    axios.get('/pages')
+    axios.get('http://localhost:3001/pages')
       .then((response) => {
         setPagesList(response.data);
       })

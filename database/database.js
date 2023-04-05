@@ -23,6 +23,7 @@ db.run(
   `CREATE TABLE IF NOT EXISTS pages (
     id INTEGER PRIMARY KEY,
     title TEXT NOT NULL,
+    content TEXT NOT NULL,
     createdAt TEXT,
     updatedAt TEXT
   )`
@@ -46,7 +47,7 @@ db.run(
     pageId INTEGER NOT NULL,
     type TEXT NOT NULL,
     content TEXT,
-    order INTEGER,
+    sort_order INTEGER,
     parentId INTEGER,
     createdAt TEXT,
     updatedAt TEXT,
@@ -73,8 +74,5 @@ db.run(`CREATE TABLE IF NOT EXISTS blocks (
   updatedAt TEXT NOT NULL,
   FOREIGN KEY (pageId) REFERENCES pages (id) ON DELETE CASCADE
 )`);
-
-// ... other code ...
-
 
 module.exports = db;

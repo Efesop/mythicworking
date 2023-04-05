@@ -30,6 +30,7 @@
     "slate": "^0.91.4",
     "slate-history": "^0.86.0",
     "slate-react": "^0.92.0",
+    "sqlite3": "^5.1.6",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

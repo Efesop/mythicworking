@@ -61,20 +61,21 @@ function HomePage() {
 
   const handleAddNewPage = async () => {
     try {
-      const { data, error } = await supabase.from('pages').insert([{ title: 'New page', content: editorData }]);
+      const { data, error } = await supabase.from('pages').insert([{ title: 'New page', content: JSON.stringify(DEFAULT_INITIAL_DATA) }]);
       if (error) throw error;
       console.log('Page created:', data);
       fetchPagesList();
-      setCurrentPage(data.id);
+      setCurrentPage(data[0].id);
+      setEditorData(DEFAULT_INITIAL_DATA);
     } catch (error) {
       console.error('Error creating page:', error);
     }
-  };  
+  }; 
 
   const onSave = async () => {
     if (currentPage) {
       try {
-        const { data, error } = await supabase.from('pages').update({ title: 'Updated page', content: editorData }).eq('id', currentPage);
+        const { data, error } = await supabase.from('pages').update({ title: 'Updated page', content: JSON.stringify(editorData) }).eq('id', currentPage);
         if (error) throw error;
         console.log('Page updated:', data);
         fetchPagesList();
@@ -84,7 +85,7 @@ function HomePage() {
     } else {
       handleAddNewPage();
     }
-  }; 
+  };
 
   const handleDeleteNote = async (pageId) => {
     try {

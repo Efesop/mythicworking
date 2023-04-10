@@ -6,7 +6,8 @@ import ListItemText from '@mui/material/ListItemText';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
-import axios from 'axios';
+import ListItemButton from '@mui/material/ListItemButton';
+// import axios from 'axios';
 
 const Sidebar = ({ drawerOpen, toggleDrawer, onPageClick, onDeleteNote, notes, onAddNewPage, currentPage }) => {
   return (
@@ -18,16 +19,16 @@ const Sidebar = ({ drawerOpen, toggleDrawer, onPageClick, onDeleteNote, notes, o
     >
       <List>
       {notes.map((note) => (
-        <ListItem key={note.id} selected={note.id === currentPage}>
-          <ListItemText
-            primary={note.title}
-            onClick={() => onPageClick(note.id)}
-          />
-          <IconButton edge="end" aria-label="delete" onClick={() => onDeleteNote(note.id)}>
-            <DeleteIcon />
-          </IconButton>
-        </ListItem>
-      ))}
+  <ListItemButton key={`${note.id}-${note.id === currentPage}`} selected={note.id === currentPage}>
+    <ListItemText
+      primary={note.title}
+      onClick={() => onPageClick(note.id)}
+    />
+    <IconButton edge="end" aria-label="delete" onClick={() => onDeleteNote(note.id)}>
+      <DeleteIcon />
+    </IconButton>
+  </ListItemButton>
+))}
         <ListItem>
           <Button onClick={onAddNewPage}>
             <ListItemText primary="Add new page" />

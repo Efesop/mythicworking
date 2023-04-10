@@ -20,26 +20,24 @@ const customUndoRedoConfig = {
   }
 };
 
-const DEFAULT_INITIAL_DATA = () => {
-  return {
-    "time": new Date().getTime(),
-    "blocks": [
-      {
-        "type": "header",
-        "data": {
-          "text": "This is my awesome editor!",
-          "level": 1
-        }
+export const DEFAULT_INITIAL_DATA = {
+  time: new Date().getTime(),
+  blocks: [
+    {
+      type: 'header',
+      data: {
+        text: 'This is my awesome editor!',
+        level: 1,
       },
-    ]
-  }
-}
+    },
+  ],
+};
 
 const EDITOR_HOLDER_ID = 'EditorJS';
 
 const Editor = (props) => {
   const ejInstance = useRef();
-  const {editorData, onEditorDataChange, onSave} = props;
+  const {editorData, onEditorDataChange, onSave, currentPage} = props;
 
   useEffect(() => {
     if (!ejInstance.current) {
@@ -49,7 +47,7 @@ const Editor = (props) => {
       ejInstance.current.destroy();
       ejInstance.current = null;
     }
-  }, []);
+  }, [currentPage]);  
 
   const initEditor = () => {
     const editor = new EditorJS({
@@ -62,7 +60,7 @@ const Editor = (props) => {
       },
       onChange: async () => {
         //let content = await ejInstance.current.saver.save();
-        let content = await ejInstance.saver.save();
+        let content = await ejInstance.current.saver.save();
         onEditorDataChange(content);
       },      
       autofocus: true,
@@ -118,7 +116,7 @@ const Editor = (props) => {
   
     editor.isReady
       .then(() => {
-        editor.container.closest('.codex-editor__redactor').addEventListener('keydown', async (event) => {
+        window.addEventListener('keydown', async (event) => {
           if ((event.ctrlKey || event.metaKey) && event.key === 's') {
             event.preventDefault();
             onSave(editor);
@@ -129,13 +127,13 @@ const Editor = (props) => {
         console.error('Error during Editor.js initialization: ', error);
       });
   };
-  
 
   return (
     <React.Fragment>
       <div id={EDITOR_HOLDER_ID}> </div>
     </React.Fragment>
   );
-}
+};
 
 export default Editor;
+

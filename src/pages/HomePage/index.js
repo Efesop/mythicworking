@@ -28,13 +28,16 @@ function HomePage() {
 
   const fetchPagesList = useCallback(async () => {
     try {
-      const { data, error } = await supabase.from('pages').select('*');
+      const { data, error } = await supabase
+        .from('pages')
+        .select('*')
+        .order('createdAt', { ascending: true }); // Change this line to order pages
       if (error) throw error;
       setPagesList(data);
     } catch (error) {
       console.error('Error fetching pages:', error);
     }
-  }, []);
+  }, []);  
 
   useEffect(() => {
     fetchPagesList();
@@ -57,7 +60,7 @@ function HomePage() {
     } catch (error) {
       console.error("Error fetching page:", error);
     }
-  };
+  };  
 
   const handleAddNewPage = async () => {
     try {
@@ -65,17 +68,22 @@ function HomePage() {
       if (error) throw error;
       console.log('Page created:', data);
       fetchPagesList();
-      setCurrentPage(data[0].id);
-      setEditorData(DEFAULT_INITIAL_DATA);
+      if (data && data.length > 0) {
+        setCurrentPage(data[0].id);
+      }
+      setEditorData({ ...DEFAULT_INITIAL_DATA }); // Use the spread operator here
     } catch (error) {
       console.error('Error creating page:', error);
     }
-  }; 
+  };    
 
   const onSave = async () => {
     if (currentPage) {
       try {
-        const { data, error } = await supabase.from('pages').update({ title: 'Updated page', content: JSON.stringify(editorData) }).eq('id', currentPage);
+        const { data, error } = await supabase
+          .from('pages')
+          .update({ title: 'Updated page', content: JSON.stringify(editorData) })
+          .eq('id', currentPage);
         if (error) throw error;
         console.log('Page updated:', data);
         fetchPagesList();
@@ -85,7 +93,7 @@ function HomePage() {
     } else {
       handleAddNewPage();
     }
-  };
+  };  
 
   const handleDeleteNote = async (pageId) => {
     try {
@@ -110,7 +118,8 @@ function HomePage() {
         currentPage={currentPage}
       />
       <MainContent>
-        <EditorJsComponent editorData={editorData} onEditorDataChange={handleEditorDataChange} onSave={onSave} />
+      <EditorJsComponent editorData={editorData} onEditorDataChange={handleEditorDataChange} onSave={onSave} currentPage={currentPage} />
+
       </MainContent>
       <Button onClick={onSave}>Save</Button>
       <FloatingActionButton />

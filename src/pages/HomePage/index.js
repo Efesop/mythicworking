@@ -13,7 +13,7 @@ const DEFAULT_INITIAL_DATA = {
     {
       type: 'header',
       data: {
-        text: 'This is my awesome editor!',
+        text: 'This is the editor!',
         level: 1,
       },
     },
@@ -40,8 +40,12 @@ function HomePage() {
   }, []);  
 
   useEffect(() => {
-    fetchPagesList();
-  }, [fetchPagesList]);
+    fetchPagesList().then(() => {
+      if (pagesList && pagesList.length > 0) {
+        handlePageClick(pagesList[0].id);
+      }
+    });
+  }, [fetchPagesList, pagesList]);  
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
@@ -77,33 +81,57 @@ function HomePage() {
     }
   };    
 
-  const onSave = async () => {
-    if (currentPage) {
-      try {
+  const onSave = async (editorInstance) => {
+    try {
+      const content = await editorInstance.saver.save();
+      if (currentPage) {
         const { data, error } = await supabase
           .from('pages')
-          .update({ title: 'Updated page', content: JSON.stringify(editorData) })
+          .update({ title: 'Updated page', content: JSON.stringify(content) })
           .eq('id', currentPage);
         if (error) throw error;
         console.log('Page updated:', data);
+        console.log('Saved content:', content); // Log the saved content
         fetchPagesList();
-      } catch (error) {
-        console.error('Error updating page:', error);
+      } else {
+        const { data, error } = await supabase.from('pages').insert([{ title: 'New page', content: JSON.stringify(content) }]);
+        if (error) throw error;
+        console.log('Page created:', data);
+        fetchPagesList();
+        if (data && data.length > 0) {
+          setCurrentPage(data[0].id);
+        }
       }
-    } else {
-      handleAddNewPage();
+    } catch (error) {
+      console.error('Error saving page:', error);
     }
-  };  
+  };       
 
   const handleDeleteNote = async (pageId) => {
     try {
       const { data, error } = await supabase.from('pages').delete().eq('id', pageId);
       if (error) throw error;
       console.log('Page deleted');
+      // Update the pagesList state after a page is deleted
+      setPagesList((prevPagesList) => prevPagesList.filter((page) => page.id !== pageId));
     } catch (error) {
       console.error('Error deleting page:', error);
     }
   };
+
+  const handleRenameNote = async (pageId, newTitle) => {
+    try {
+      const { data, error } = await supabase
+        .from('pages')
+        .update({ title: newTitle })
+        .eq('id', pageId);
+      if (error) throw error;
+      console.log('Page renamed:', data);
+      fetchPagesList();
+    } catch (error) {
+      console.error('Error renaming page:', error);
+    }
+  };  
       
   return (
     <div>
@@ -116,12 +144,22 @@ function HomePage() {
         notes={pagesList}
         onAddNewPage={handleAddNewPage}
         currentPage={currentPage}
+        onRenameNote={handleRenameNote}
       />
-      <MainContent>
-      <EditorJsComponent editorData={editorData} onEditorDataChange={handleEditorDataChange} onSave={onSave} currentPage={currentPage} />
-
-      </MainContent>
-      <Button onClick={onSave}>Save</Button>
+<MainContent>
+  {currentPage ? (
+    <EditorJsComponent
+      editorData={editorData}
+      onEditorDataChange={handleEditorDataChange}
+      onSave={onSave}
+      currentPage={currentPage}
+    />
+  ) : (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+      <h3>Select a page or create a new one to get started</h3>
+    </div>
+  )}
+</MainContent>
       <FloatingActionButton />
     </div>
   );
